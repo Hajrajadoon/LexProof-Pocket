@@ -1,0 +1,23 @@
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: #f3f5fa;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+}
+
+::selection {
+  background: #cfe0ff;
+  color: #0f1e3d;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
