@@ -328,7 +328,7 @@ function LogoMark({ className = "" }) {
       className={className}
       viewBox="0 0 100 100"
       role="img"
-      aria-label="LexProof AI"
+      aria-label="LexProof Pocket"
     >
       <defs>
         <linearGradient id="lpLogoBg" x1="0" y1="0" x2="1" y2="1">
@@ -712,7 +712,7 @@ function App() {
 
       if (normalized.ai_report && normalized.ai_status === "completed") {
         setNotice(
-          `${file ? "PDF" : "Text"} analysis completed. Gemini AI report is ready.` +
+          `${file ? "PDF" : "Text"} analysis completed. QVAC local AI report is ready.` +
             (data.saved_to_database ? " Result saved to database." : "")
         );
       } else if (normalized.ai_status === "unavailable") {
@@ -1057,7 +1057,7 @@ function App() {
           <LogoMark className="brand-logo" />
           <div>
             <div className="brand-name">
-              LexProof <span>AI</span>
+              LexProof <span>Pocket</span>
             </div>
             <div className="brand-tag">LEGAL INTELLIGENCE</div>
           </div>
@@ -1314,7 +1314,7 @@ function App() {
                       </span>
                       <div>
                         <h3>Paste contract text</h3>
-                        <p>Analyzed by Google Gemini</p>
+                        <p>Analyzed locally by QVAC AI</p>
                       </div>
                     </div>
                   </div>
@@ -1347,7 +1347,7 @@ function App() {
                   <div>
                     <strong>Analyzing your document…</strong>
                     <span>
-                      Extracting the text and running the Gemini review. Longer
+                      Extracting the text and running QVAC local AI. Longer
                       documents can take a little while.
                     </span>
                   </div>
@@ -1526,7 +1526,7 @@ function App() {
                             }
                           >
                             {isAiComplete
-                              ? "Gemini AI completed"
+                              ? "QVAC local AI completed"
                               : aiStatus === "unavailable"
                                 ? "AI unavailable"
                                 : "AI report not available"}
@@ -1562,7 +1562,7 @@ function App() {
                           This record has no usable AI report. It may have been
                           created by the keyword-only analyzer, or AI analysis
                           may have been unavailable. Run the analysis again
-                          after confirming that the Gemini-enabled backend is
+                          after confirming that the QVAC local AI backend is
                           connected.
                         </p>
                       )}
@@ -1641,7 +1641,7 @@ function App() {
                                           {finding.evidence && (
                                             <blockquote className="quote">
                                               <small>Evidence from document</small>
-                                              “{finding.evidence}”
+                                              â€œ{finding.evidence}â€
                                             </blockquote>
                                           )}
 
@@ -2094,7 +2094,7 @@ function App() {
                 <p>
                   Documents are registered on the Casper blockchain by their
                   SHA-256 hash only. The text is processed by the backend and
-                  Google Gemini, but it is never put on-chain.
+                  QVAC local AI, but it is never put on-chain.
                 </p>
               </div>
 
@@ -2233,7 +2233,7 @@ function App() {
           )}
 
           <footer className="footer">
-            <span>LexProof AI · Legal intelligence, with transparency.</span>
+            <span>LexProof Pocket · Legal intelligence, with transparency.</span>
             <span>Prototype · Not legal advice</span>
           </footer>
         </div>

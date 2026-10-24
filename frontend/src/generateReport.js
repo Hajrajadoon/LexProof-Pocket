@@ -25,7 +25,7 @@ function addSection(doc, title, items, y) {
         ? item
         : item?.description || item?.text || JSON.stringify(item);
 
-    const lines = doc.splitTextToSize(`• ${text}`, 175);
+    const lines = doc.splitTextToSize(`â€¢ ${text}`, 175);
 
     if (y + lines.length * 5 > 275) {
       doc.addPage();
@@ -48,7 +48,7 @@ export function generateReport(analysis) {
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(20);
-  doc.text("LexProof AI", 15, y);
+  doc.text("LexProof Pocket", 15, y);
   y += 10;
 
   doc.setFontSize(14);

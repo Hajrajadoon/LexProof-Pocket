@@ -1,4 +1,4 @@
-﻿
+
 import hashlib
 import json
 import logging
@@ -28,7 +28,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-from ai_analysis import analyze_with_gemini
+from qvac_analysis import analyze_with_qvac_local
 
 
 # ---------------------------------------------------------
@@ -38,7 +38,7 @@ from ai_analysis import analyze_with_gemini
 APP_DIR = Path(__file__).resolve().parent
 load_dotenv(APP_DIR / ".env")
 
-API_VERSION = "0.4.2-gemini-db-fix"
+API_VERSION = "0.5.0-qvac-local"
 
 GEMINI_MODEL = os.getenv(
     "GEMINI_MODEL",
@@ -498,84 +498,52 @@ def analyze_document_text(
 # Gemini AI integration
 # ---------------------------------------------------------
 
-def add_ai_analysis(
-    extracted_text: str,
-    result: dict[str, Any],
-    source_type: str,
-) -> dict[str, Any]:
-    """Add Gemini analysis while preserving preliminary findings."""
 
-    result["backend_version"] = API_VERSION
+@app.get("/")
+def root() -> dict[str, Any]:
+    return {
+        "name": "LexProof Pocket",
+        "status": "online",
+        "api_version": API_VERSION,
+        "ai_provider": "QVAC local",
+        "cloud_ai_fallback": False,
+        "endpoints": [
+            "/health",
+            "/api/analyze-text",
+            "/api/analyze-pdf",
+            "/api/analyses",
+        ],
+    }
 
-    if not os.getenv("GEMINI_API_KEY", "").strip():
-        logger.error("Gemini API key is not configured.")
 
-        result["ai_status"] = "unavailable"
-        result["ai_report"] = None
-        result["ai_error_type"] = "MissingAPIKey"
-        result["ai_message"] = (
-            "The preliminary scan completed, but AI analysis "
-            "is unavailable because the Gemini API key is not configured."
-        )
-        result["analysis_type"] = (
-            f"{source_type}_keyword_scan_ai_unavailable"
-        )
-
-        return result
+@app.get("/health")
+def health() -> dict[str, Any]:
+    database_status = "connected"
 
     try:
-        report = analyze_with_gemini(
-            document_text=extracted_text,
-            source_type=source_type,
-        )
+        with engine.connect() as connection:
+            connection.execute(sql_text("SELECT 1"))
 
-        if not isinstance(report, dict):
-            raise TypeError(
-                "Gemini analysis did not return a dictionary."
-            )
-
-        result["ai_status"] = "completed"
-        result["ai_report"] = report
-
-        result["document_summary"] = report.get(
-            "summary",
-            result.get("document_summary"),
-        )
-
-        result["analysis_type"] = (
-            f"gemini_ai_{source_type}_analysis"
-        )
-
-        result.pop("ai_error_type", None)
-        result.pop("ai_message", None)
-
-        logger.info(
-            "Gemini analysis completed for source type %s.",
-            source_type,
-        )
+            if not inspect(connection).has_table("analysis_records"):
+                database_status = "unavailable"
 
     except Exception as exc:
         logger.error(
-            "Gemini analysis failed for %s: %s",
-            source_type,
+            "Database health check failed: %s",
             type(exc).__name__,
         )
+        database_status = "unavailable"
 
-        result["ai_status"] = "unavailable"
-        result["ai_report"] = None
-        result["ai_error_type"] = type(exc).__name__
-        result["ai_message"] = (
-            "The preliminary scan completed, but AI analysis "
-            "was unavailable. Check the Gemini API key, model "
-            "configuration, and backend logs."
-        )
-        result["analysis_type"] = (
-            f"{source_type}_keyword_scan_ai_unavailable"
-        )
+    return {
+        "status": (
+            "ok" if database_status == "connected" else "degraded"
+        ),
+        "api_version": API_VERSION,
+        "database": database_status,
+        "ai_provider": "QVAC local",
+        "cloud_ai_fallback": False,
+    }
 
-    result["backend_version"] = API_VERSION
-
-    return result
 
 
 # ---------------------------------------------------------
@@ -777,6 +745,50 @@ def health() -> dict[str, Any]:
 
 
 # ---------------------------------------------------------
+def add_ai_analysis(
+    extracted_text: str,
+    result: dict[str, Any],
+    source_type: str = "pdf",
+) -> dict[str, Any]:
+    """Attach a QVAC local report without cloud fallback."""
+    try:
+        report = analyze_with_qvac_local(
+            extracted_text,
+            source_type=source_type,
+        )
+
+        if not isinstance(report, dict):
+            raise ValueError("QVAC returned an invalid report.")
+
+        required = (
+            "summary",
+            "key_obligations",
+            "risk_findings",
+            "questions_for_lawyer",
+        )
+        if any(key not in report for key in required):
+            raise ValueError("QVAC report is missing required fields.")
+
+        report["analysis_provider"] = "QVAC local"
+        report["source_type"] = source_type
+
+        result["ai_report"] = report
+        result["ai_status"] = "completed"
+        result["analysis_type"] = "qvac_local"
+        result["document_summary"] = report["summary"]
+        return result
+
+    except Exception as exc:
+        logger.exception("QVAC local analysis failed.")
+        result["ai_report"] = None
+        result["ai_status"] = "unavailable"
+        result["ai_error"] = (
+            "Local QVAC analysis failed. The keyword scan is still "
+            "available; AI findings were not generated."
+        )
+        result["analysis_type"] = "keyword_scan"
+        return result
+
 # Analyze pasted text
 # ---------------------------------------------------------
 
