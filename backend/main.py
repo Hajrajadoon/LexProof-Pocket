@@ -1,5 +1,5 @@
-
 import hashlib
+import io
 import json
 import logging
 import os
@@ -12,6 +12,7 @@ from typing import Any
 
 from dotenv import load_dotenv
 from fastapi import Body, FastAPI, File, HTTPException, UploadFile
+from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from pypdf import PdfReader
@@ -38,12 +39,7 @@ from qvac_analysis import analyze_with_qvac_local
 APP_DIR = Path(__file__).resolve().parent
 load_dotenv(APP_DIR / ".env")
 
-API_VERSION = "0.5.0-qvac-local"
-
-GEMINI_MODEL = os.getenv(
-    "GEMINI_MODEL",
-    "gemini-3.1-flash-lite",
-).strip()
+API_VERSION = "0.5.1-qvac-local"
 
 MAX_PDF_SIZE = 15 * 1024 * 1024
 MAX_TEXT_LENGTH = 100_000
@@ -285,9 +281,9 @@ initialize_database()
 # ---------------------------------------------------------
 
 app = FastAPI(
-    title="LexProof AI",
+    title="LexProof Pocket",
     description=(
-        "AI-powered legal document intelligence, "
+        "Offline AI-powered legal document intelligence (QVAC local), "
         "document integrity, and analysis history."
     ),
     version=API_VERSION,
@@ -296,7 +292,6 @@ app = FastAPI(
 allowed_origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "https://lexproof-ai.netlify.app",
 ]
 
 extra_origins = os.getenv("FRONTEND_ORIGINS", "").strip()
@@ -326,6 +321,13 @@ class TextAnalysisRequest(BaseModel):
     filename: str = "Pasted text"
 
 
+class BlockchainUpdate(BaseModel):
+    tx_hash: str
+    status: str
+    account: str | None = None
+    error: str | None = None
+
+
 # ---------------------------------------------------------
 # Utility functions
 # ---------------------------------------------------------
@@ -346,8 +348,6 @@ def extract_pdf_text(content: bytes) -> str:
     """Extract readable text from an uploaded PDF."""
 
     try:
-        import io
-
         reader = PdfReader(io.BytesIO(content))
 
         if reader.is_encrypted:
@@ -495,55 +495,74 @@ def analyze_document_text(
 
 
 # ---------------------------------------------------------
-# Gemini AI integration
+# QVAC local AI integration (offline, no cloud fallback)
 # ---------------------------------------------------------
 
+def add_ai_analysis(
+    extracted_text: str,
+    result: dict[str, Any],
+    source_type: str = "pdf",
+) -> dict[str, Any]:
+    """Attach a QVAC local report. Never falls back to a cloud AI.
 
-@app.get("/")
-def root() -> dict[str, Any]:
-    return {
-        "name": "LexProof Pocket",
-        "status": "online",
-        "api_version": API_VERSION,
-        "ai_provider": "QVAC local",
-        "cloud_ai_fallback": False,
-        "endpoints": [
-            "/health",
-            "/api/analyze-text",
-            "/api/analyze-pdf",
-            "/api/analyses",
-        ],
-    }
-
-
-@app.get("/health")
-def health() -> dict[str, Any]:
-    database_status = "connected"
+    If QVAC fails, the keyword scan is preserved and the real reason
+    is logged and returned in `ai_error`.
+    """
 
     try:
-        with engine.connect() as connection:
-            connection.execute(sql_text("SELECT 1"))
+        report = analyze_with_qvac_local(
+            extracted_text,
+            source_type=source_type,
+        )
 
-            if not inspect(connection).has_table("analysis_records"):
-                database_status = "unavailable"
+        if not isinstance(report, dict):
+            raise ValueError("QVAC returned an invalid report.")
+
+        required = (
+            "summary",
+            "key_obligations",
+            "risk_findings",
+            "questions_for_lawyer",
+        )
+        missing = [key for key in required if key not in report]
+
+        if missing:
+            raise ValueError(
+                f"QVAC report is missing fields: {', '.join(missing)}"
+            )
+
+        if (
+            not isinstance(report["summary"], str)
+            or not report["summary"].strip()
+        ):
+            raise ValueError("QVAC report has an empty summary.")
+
+        report["analysis_provider"] = "QVAC local"
+        report["source_type"] = source_type
+
+        result["ai_report"] = report
+        result["ai_status"] = "completed"
+        result["analysis_type"] = "qvac_local"
+        result["document_summary"] = report["summary"].strip()
+        result.pop("ai_error", None)
+
+        return result
 
     except Exception as exc:
-        logger.error(
-            "Database health check failed: %s",
-            type(exc).__name__,
+        reason = str(exc).strip() or type(exc).__name__
+
+        logger.error("QVAC local analysis failed: %s", reason)
+
+        result["ai_report"] = None
+        result["ai_status"] = "unavailable"
+        result["ai_error"] = (
+            "Local QVAC analysis failed. The keyword scan is still "
+            "available; AI findings were not generated. "
+            f"Reason: {reason[:500]}"
         )
-        database_status = "unavailable"
+        result["analysis_type"] = "keyword_scan"
 
-    return {
-        "status": (
-            "ok" if database_status == "connected" else "degraded"
-        ),
-        "api_version": API_VERSION,
-        "database": database_status,
-        "ai_provider": "QVAC local",
-        "cloud_ai_fallback": False,
-    }
-
+        return result
 
 
 # ---------------------------------------------------------
@@ -576,10 +595,6 @@ def save_analysis(
             )
         )
 
-        # JSON columns are stored as JSON values by SQLAlchemy.
-        # The legacy database may declare ai_report as JSON, while
-        # newer schemas may declare it as TEXT. Both support this
-        # serialized JSON string on SQLite.
         serialized_report = (
             json.dumps(report, ensure_ascii=False)
             if report is not None
@@ -690,19 +705,17 @@ def serialize_record(
 
 
 # ---------------------------------------------------------
-# Health and deployment diagnostics
+# Health and diagnostics
 # ---------------------------------------------------------
 
 @app.get("/")
 def root() -> dict[str, Any]:
     return {
-        "name": "LexProof AI",
+        "name": "LexProof Pocket",
         "status": "online",
         "api_version": API_VERSION,
-        "gemini_api_key_configured": bool(
-            os.getenv("GEMINI_API_KEY", "").strip()
-        ),
-        "gemini_model": GEMINI_MODEL,
+        "ai_provider": "QVAC local",
+        "cloud_ai_fallback": False,
         "endpoints": [
             "/health",
             "/api/analyze-text",
@@ -720,7 +733,6 @@ def health() -> dict[str, Any]:
         with engine.connect() as connection:
             connection.execute(sql_text("SELECT 1"))
 
-            # Check that the application can see the expected table.
             if not inspect(connection).has_table("analysis_records"):
                 database_status = "unavailable"
 
@@ -737,58 +749,12 @@ def health() -> dict[str, Any]:
         ),
         "api_version": API_VERSION,
         "database": database_status,
-        "gemini_api_key_configured": bool(
-            os.getenv("GEMINI_API_KEY", "").strip()
-        ),
-        "gemini_model": GEMINI_MODEL,
+        "ai_provider": "QVAC local",
+        "cloud_ai_fallback": False,
     }
 
 
 # ---------------------------------------------------------
-def add_ai_analysis(
-    extracted_text: str,
-    result: dict[str, Any],
-    source_type: str = "pdf",
-) -> dict[str, Any]:
-    """Attach a QVAC local report without cloud fallback."""
-    try:
-        report = analyze_with_qvac_local(
-            extracted_text,
-            source_type=source_type,
-        )
-
-        if not isinstance(report, dict):
-            raise ValueError("QVAC returned an invalid report.")
-
-        required = (
-            "summary",
-            "key_obligations",
-            "risk_findings",
-            "questions_for_lawyer",
-        )
-        if any(key not in report for key in required):
-            raise ValueError("QVAC report is missing required fields.")
-
-        report["analysis_provider"] = "QVAC local"
-        report["source_type"] = source_type
-
-        result["ai_report"] = report
-        result["ai_status"] = "completed"
-        result["analysis_type"] = "qvac_local"
-        result["document_summary"] = report["summary"]
-        return result
-
-    except Exception as exc:
-        logger.exception("QVAC local analysis failed.")
-        result["ai_report"] = None
-        result["ai_status"] = "unavailable"
-        result["ai_error"] = (
-            "Local QVAC analysis failed. The keyword scan is still "
-            "available; AI findings were not generated."
-        )
-        result["analysis_type"] = "keyword_scan"
-        return result
-
 # Analyze pasted text
 # ---------------------------------------------------------
 
@@ -818,19 +784,19 @@ def analyze_text(
         request.filename.strip() or "Pasted text"
     ).name[:255]
 
+    file_hash = calculate_sha256(document_text.encode("utf-8"))
+
     result = analyze_document_text(document_text)
     result["filename"] = filename
+    result["file_hash"] = file_hash
 
+    # This is a plain `def` endpoint, so FastAPI already runs it in a
+    # worker thread; the blocking QVAC call will not freeze the server.
     result = add_ai_analysis(
         extracted_text=document_text,
         result=result,
         source_type="text",
     )
-
-    file_hash = calculate_sha256(
-        document_text.encode("utf-8")
-    )
-    result["file_hash"] = file_hash
 
     return save_analysis(
         result=result,
@@ -895,10 +861,13 @@ async def analyze_pdf(
     result["filename"] = filename
     result["file_hash"] = file_hash
 
-    result = add_ai_analysis(
-        extracted_text=extracted_text,
-        result=result,
-        source_type="pdf",
+    # QVAC runs as a blocking subprocess that can take a minute or more.
+    # Run it in a thread so the async server is not frozen meanwhile.
+    result = await run_in_threadpool(
+        add_ai_analysis,
+        extracted_text,
+        result,
+        "pdf",
     )
 
     return save_analysis(
@@ -1001,6 +970,7 @@ def get_analysis(
 # ---------------------------------------------------------
 # Casper blockchain integration
 # Only the SHA-256 hash is ever sent to the blockchain.
+# This part needs internet; the AI analysis above does not.
 # ---------------------------------------------------------
 
 HEX64 = re.compile(r"^[0-9a-fA-F]{64}$")
@@ -1045,10 +1015,13 @@ def casper_rpc_call(payload: dict[str, Any]) -> dict[str, Any]:
             ) from exc
 
     except Exception as exc:
-        logger.exception("Casper node request failed.")
+        logger.error("Casper node request failed: %s", exc)
         raise HTTPException(
             status_code=502,
-            detail="Could not reach the Casper node.",
+            detail=(
+                "Could not reach the Casper node. "
+                "Blockchain features need an internet connection."
+            ),
         ) from exc
 
 
@@ -1221,13 +1194,6 @@ def blockchain_verify(document_hash: str) -> dict[str, Any]:
         status_code=502,
         detail=f"Unexpected response from the Casper node: {errors}",
     )
-
-
-class BlockchainUpdate(BaseModel):
-    tx_hash: str
-    status: str
-    account: str | None = None
-    error: str | None = None
 
 
 @app.post("/api/analyses/{analysis_id}/blockchain")
