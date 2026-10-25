@@ -1,3 +1,5 @@
+# LexProof Pocket
+
 <div align="center">
 
 <img src="./assets/logo.svg" alt="LexProof AI Logo" width="460" />
@@ -6,23 +8,20 @@
 
 ### Clarity for every contract.
 
-**AI-powered legal document intelligence with blockchain-backed integrity verification.**
+**Privacy-focused legal document intelligence powered by local QVAC AI, with blockchain-backed document integrity verification.**
 
 <br />
 
-[![Live App](https://img.shields.io/badge/Live%20App-Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)](https://lexproof-ai.netlify.app/)
-[![Backend API](https://img.shields.io/badge/Backend-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://lexproof-ai.onrender.com)
+![AI](https://img.shields.io/badge/AI-Local%20QVAC-6D5DFB?style=for-the-badge)
 ![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![API](https://img.shields.io/badge/API-FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
-![Database](https://img.shields.io/badge/Database-PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
-![AI](https://img.shields.io/badge/AI-Google%20Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white)
 ![Blockchain](https://img.shields.io/badge/Blockchain-Casper%20Testnet-FF0012?style=for-the-badge)
-![Contract](https://img.shields.io/badge/Contract-Rust%20%E2%86%92%20WASM-000000?style=for-the-badge&logo=rust&logoColor=white)
-![Status](https://img.shields.io/badge/status-prototype-orange?style=for-the-badge)
+![Privacy](https://img.shields.io/badge/AI%20Processing-Local%20First-0F766E?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Prototype-orange?style=for-the-badge)
 
 <br />
 
-**[Launch the App](https://lexproof-ai.netlify.app/)** · **[Backend API](https://lexproof-ai.onrender.com)** · **[Getting Started](#getting-started)**
+**Local AI · Legal document intelligence · SHA-256 · Casper blockchain**
 
 </div>
 
@@ -31,33 +30,22 @@
 ## Table of Contents
 
 - [Overview](#overview)
-- [Live Deployment](#live-deployment)
 - [The Problem and Our Solution](#the-problem-and-our-solution)
 - [Key Features](#key-features)
-- [How LexProof Works](#how-lexproof-works)
+- [How LexProof Pocket Works](#how-lexproof-pocket-works)
+- [Offline-First AI Architecture](#offline-first-ai-architecture)
 - [System Architecture](#system-architecture)
-- [Workflow Diagrams](#workflow-diagrams)
-  - [Document Analysis Flow](#document-analysis-flow)
-  - [Blockchain Registration Flow](#blockchain-registration-flow)
-  - [Verification Logic](#verification-logic)
-  - [Privacy by Design](#privacy-by-design)
-  - [User Journey](#user-journey)
-- [Smart Contract](#smart-contract)
-- [Data Model](#data-model)
+- [Document Analysis Workflow](#document-analysis-workflow)
+- [Blockchain Registration and Verification](#blockchain-registration-and-verification)
+- [Privacy by Design](#privacy-by-design)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Backend Setup](#backend-setup)
-  - [Frontend Setup](#frontend-setup)
-  - [Environment Variables](#environment-variables)
 - [Using the App](#using-the-app)
+- [Workspace](#workspace)
 - [API Reference](#api-reference)
-- [Building and Deploying the Contract](#building-and-deploying-the-contract)
-- [Hosting on Render and Netlify](#hosting-on-render-and-netlify)
-- [Privacy and Security](#privacy-and-security)
+- [Security and Data Handling](#security-and-data-handling)
 - [Limitations](#limitations)
-- [Prototype Snapshot](#prototype-snapshot)
 - [Roadmap](#roadmap)
 - [Disclaimer](#disclaimer)
 - [Contributing](#contributing)
@@ -68,395 +56,391 @@
 
 ## Overview
 
-Legal documents are long, dense, and easy to misread. **LexProof AI** helps in two ways:
+Legal documents are often long, complex, and difficult to interpret. Important obligations, deadlines, and potentially risky clauses can be easy to overlook.
 
-1. **Understand.** Upload a PDF or paste contract text. **Google Gemini** produces a plain-language summary, key obligations, potential risk clauses with supporting evidence, and questions worth asking a lawyer.
-2. **Verify.** Register the document's **SHA-256 hash** on the **Casper blockchain**. Later, anyone holding the same document can check that its hash is on-chain, which shows the file has not changed since it was registered.
+**LexProof Pocket** is a legal document intelligence prototype designed to help users understand documents, identify clauses that deserve closer review, and verify document integrity using blockchain technology.
 
-Only the hash is written to the blockchain. The document itself is never put on-chain.
+The application combines local AI analysis with cryptographic hashing and Casper Testnet integration.
 
-The platform is fully deployed: the frontend runs on **Netlify**, the backend API on **Render**, and saved analyses are persisted in **PostgreSQL**. LexProof AI is a prototype running on the **Casper Testnet** and is not legal advice. See the [Disclaimer](#disclaimer).
+### The three-step workflow
 
-> LexProof AI · Legal intelligence, with transparency.
+1. **Understand** — Analyze a PDF or pasted contract text and generate a plain-language report.
+2. **Review** — Examine potential risks, key obligations, supporting evidence, and questions to discuss with a qualified lawyer.
+3. **Verify** — Register a document's SHA-256 hash on the Casper blockchain and check whether a document matches a previously registered hash.
 
----
+### Local AI processing
 
-## Live Deployment
+LexProof Pocket integrates **QVAC local AI** to analyze document text on the user's computer. Once the required model and local runtime are available, AI inference can run without sending document text to a cloud-based AI service.
 
-| Component | Platform | URL |
-|---|---|---|
-| **Frontend (Web App)** | Netlify | [https://lexproof-ai.netlify.app/](https://lexproof-ai.netlify.app/) |
-| **Backend (API)** | Render | [https://lexproof-ai.onrender.com](https://lexproof-ai.onrender.com) |
-| **Database** | PostgreSQL | Connected to the Render backend |
-| **AI Engine** | Google Gemini | Called server-side by the backend |
-| **Blockchain** | Casper Testnet (`casper-test`) | Document hash registry contract |
+This is particularly useful for users who want to analyze documents when internet connectivity is unavailable.
 
-> **Note:** If the backend has been idle, the first request may take a little longer while the Render service wakes up.
+Blockchain operations are separate from local AI analysis. Connecting a Casper Wallet, submitting transactions, and querying the network require internet connectivity.
 
-> **Prototype warning:** Please do not upload sensitive or confidential documents to the live demo.
+### Privacy by design
+
+**Only the SHA-256 document hash is registered on the blockchain. The document itself is never intentionally written on-chain.**
+
+However, local AI processing does not automatically mean that all application data remains exclusively on the user's device. Saved analysis history depends on the application's configured database, and users should understand where document text and reports are stored before uploading sensitive information.
+
+LexProof Pocket is a prototype, not a substitute for professional legal advice.
 
 ---
 
 ## The Problem and Our Solution
 
-**The problem**
+### The problem
 
-- Contracts are long and written in language most people do not use day to day.
-- Important clauses are easy to miss, and a missed clause can be costly.
-- Once a document is shared, it is hard to prove later that a copy is identical to the original.
-- Putting legal documents on a public blockchain would expose sensitive information.
+- Legal agreements often contain complicated language that is difficult to understand.
+- Important obligations, payment conditions, deadlines, and risks can be overlooked.
+- Users may struggle to identify which clauses require further professional review.
+- Documents can be modified after being signed, shared, or archived.
+- Cloud-based AI analysis may be unsuitable for users who need offline processing or want to limit third-party access to document text.
+- Publishing complete legal documents on a public blockchain would expose confidential information.
 
-**Our solution:** LexProof AI separates *understanding* from *verification*.
+### Our solution
 
-| Need | How LexProof addresses it |
+LexProof Pocket separates document understanding from blockchain verification.
+
+| Need | LexProof Pocket approach |
 |---|---|
-| Understand a contract | Gemini generates a plain-language summary and flags clauses worth reviewing |
-| Know what to ask | Risk findings with evidence quotes and suggested questions for a lawyer |
-| Trust the AI output | Quotes returned by the AI are checked against the document text |
-| Prove integrity | The document's SHA-256 hash is registered on the Casper blockchain |
-| Keep data private | Only the hash goes on-chain, never the document |
-| Protect credentials | API keys live on the backend, and private keys stay in Casper Wallet |
+| Understand a document | Local QVAC AI generates a structured analysis report |
+| Identify potential concerns | Review flagged risks and supporting evidence |
+| Understand responsibilities | Extract key obligations and relevant statements |
+| Prepare for legal consultation | Generate questions to discuss with a lawyer |
+| Analyze without an AI cloud request | Use the local QVAC runtime when available |
+| Revisit earlier work | Browse saved analyses retrieved from the configured backend |
+| Check document integrity | Calculate a SHA-256 hash and compare it with the Casper registry |
+| Protect document contents on-chain | Register the hash rather than the full document |
 
 ---
 
 ## Key Features
 
-- **PDF and text analysis**: upload a PDF (up to 15 MB) or paste contract text (up to 100,000 characters).
-- **Structured AI report**: document type, summary, key obligations, risk findings with severity, evidence quotes and suggested review, and questions for a lawyer.
-- **Evidence checking**: quotes returned by the AI are checked against the document, and findings whose quote cannot be verified are labelled as such.
-- **Keyword scan fallback**: a lightweight scan still runs if the AI service is unavailable.
-- **Saved analysis history**: past analyses are stored in the database and can be reopened at any time.
-- **Downloadable PDF report**: includes a blockchain verification section once a document is registered.
-- **Wallet-signed registration**: Casper Wallet signs every transaction. LexProof AI never sees or stores a private key.
-- **Duplicate protection**: the app checks for an existing registration before sending a paid transaction.
-- **One-click on-chain verification** of a document hash.
-- **Dashboard metrics**: documents in the current session, saved analyses, and verified on-chain records.
-- **Server-side secrets**: the Gemini API key and database credentials never reach the browser.
+### Document analysis
+
+- **PDF upload:** Upload PDF documents up to 15 MB.
+- **Pasted-text analysis:** Paste contract text, with an interface limit of up to 100,000 characters.
+- **Local QVAC AI:** Run supported AI inference through a local model runtime.
+- **Plain-language summaries:** Understand the main subject and meaning of a document.
+- **Key obligations:** Identify responsibilities, deadlines, and other potentially relevant statements.
+- **Risk review:** Display potential concerns that may deserve closer examination.
+- **Evidence and lawyer questions:** Present supporting text and questions for professional review.
+- **AI status reporting:** Distinguish completed AI analysis from unavailable or unsuccessful AI processing.
+
+AI output depends on the quality of the extracted text, the model's capabilities, and successful execution of the local runtime.
+
+### Saved analysis history
+
+- Retrieve previously saved analysis records from the configured backend.
+- View the document name or pasted-text label.
+- See the date, time, and word count.
+- Reopen saved reports.
+- Refresh the analysis history.
+- Review whether an analysis was completed by AI or reported as unavailable.
+
+The database may store extracted document text and generated reports. Local inference and database storage are separate concerns.
+
+### Blockchain integrity verification
+
+- Generate a SHA-256 hash for a document.
+- Connect a Casper Wallet.
+- Request a wallet signature for blockchain registration.
+- Register the hash on Casper Testnet.
+- Check whether a hash exists in the on-chain registry.
+- Display registration and verification status.
+
+The document hash is used to detect changes to the exact content that was hashed. A matching hash does not prove the identity of the author or the legal validity of the document.
+
+### Workspace dashboard
+
+The workspace provides navigation for:
+
+- **Overview** — Main dashboard, analysis controls, and recent results.
+- **Documents** — Document-related workspace functionality.
+- **Blockchain Verification** — Blockchain verification interface.
+- **Reports** — Report-related workspace functionality.
+
+The availability of individual actions depends on the current application configuration and successful communication with the relevant services.
 
 ---
 
-## How LexProof Works
-
-A clear path from contract to verifiable record.
+## How LexProof Pocket Works
 
 | Step | Stage | Description |
 |:---:|---|---|
-| **01** | **Understand** | Generate a plain-language summary and highlight clauses that may need review. |
-| **02** | **Review** | Explore potential concerns, evidence, and questions to discuss with a lawyer. |
-| **03** | **Verify** | Register the document hash on-chain to check whether a later copy matches. |
+| 01 | **Understand** | Provide a PDF or paste document text for local AI analysis. |
+| 02 | **Review** | Examine the summary, potential risks, obligations, evidence, and lawyer questions. |
+| 03 | **Verify** | Calculate the document hash and optionally register or verify it on Casper Testnet. |
 
 ```mermaid
-flowchart LR
-    A["Contract<br/>PDF or pasted text"] --> B["01 Understand<br/>Plain-language summary"]
-    B --> C["02 Review<br/>Flagged clauses and questions"]
-    C --> D["03 Verify<br/>Hash registered on Casper"]
-    D --> E["Verifiable record<br/>Match any later copy"]
-
-    style A fill:#0F1E3D,stroke:#1E3A8A,color:#fff
-    style B fill:#1E3A8A,stroke:#1E3A8A,color:#fff
-    style C fill:#1E3A8A,stroke:#1E3A8A,color:#fff
-    style D fill:#0F766E,stroke:#0F766E,color:#fff
-    style E fill:#16A34A,stroke:#16A34A,color:#fff
+flowchart TD
+    A["PDF or pasted contract text"] --> B["Document processing"]
+    B --> C["Local QVAC AI"]
+    C --> D["Structured analysis report"]
+    D --> E["Review summary, risks, and obligations"]
+    B --> F["SHA-256 hash"]
+    F --> G{"Need blockchain proof?"}
+    G -- "No" --> H["Continue offline"]
+    G -- "Yes" --> I["Connect Casper Wallet"]
+    I --> J["Register or verify hash"]
+    J --> K["Casper Testnet"]
 ```
+
+Document analysis can operate independently of blockchain transactions. Blockchain registration and network verification require the relevant network services to be reachable.
+
+---
+
+## Offline-First AI Architecture
+
+LexProof Pocket is designed to support local document analysis through QVAC.
+
+```mermaid
+flowchart TB
+    A["User provides a document"] --> B["PDF extraction or text input"]
+    B --> C["Local QVAC worker"]
+    C --> D["Local model inference"]
+    D --> E["Structured analysis result"]
+    E --> F["Display report"]
+
+    B --> G["SHA-256 calculation"]
+    G --> H["Document integrity hash"]
+
+    H --> I{"Internet available?"}
+    I -- "No" --> J["Keep hash locally for later use"]
+    I -- "Yes" --> K["Casper Wallet and network services"]
+    K --> L["Registration or verification"]
+
+    style C fill:#EDE9FE,stroke:#7C3AED,color:#1F1147
+    style D fill:#EDE9FE,stroke:#7C3AED,color:#1F1147
+    style K fill:#FEE2E2,stroke:#DC2626,color:#450A0A
+```
+
+### What works offline?
+
+When the local model and required runtime are installed and available, document analysis can run without an internet connection to an AI provider.
+
+Offline operation may include:
+
+- Pasting text.
+- Processing supported PDFs.
+- Running local inference.
+- Generating analysis results.
+- Calculating SHA-256 hashes.
+
+The precise availability of saving, history, and other features depends on whether their backing services are local or remote.
+
+### What requires internet access?
+
+- Connecting to Casper network services.
+- Submitting blockchain transactions.
+- Checking transaction status.
+- Querying the on-chain registry.
+- Any operation that depends on a remotely hosted API or database.
+
+**Important:** If the QVAC worker fails, LexProof Pocket should not represent a keyword-only result as a successful AI report. AI availability and the analysis method should be communicated accurately.
 
 ---
 
 ## System Architecture
 
-LexProof AI consists of a React frontend, a FastAPI backend, the Gemini AI engine, a database for saved analyses, and the Casper Testnet for verification.
+LexProof Pocket combines a React frontend, a FastAPI backend, a local QVAC inference worker, document processing, a configured database, and Casper blockchain services.
 
 ```mermaid
 flowchart TB
-    subgraph Client["Client Layer - Netlify"]
-        UI["React + Vite frontend<br/>Overview, Documents, Verification, Reports"]
-        WALLET["Casper Wallet<br/>Browser extension"]
+    subgraph Client["Client Layer"]
+        UI["React + Vite frontend"]
+        WALLET["Casper Wallet"]
     end
 
-    subgraph Backend["Backend Layer - Render"]
-        API["FastAPI REST API"]
-        EXTRACT["Document processing<br/>pypdf text extraction and SHA-256 hashing"]
-        RELAY["Casper RPC relay<br/>Allow-listed methods only"]
-        ENV["Environment variables<br/>Gemini API key, database URL, contract config"]
+    subgraph Backend["Application Layer"]
+        API["FastAPI backend"]
+        PDF["PDF text extraction"]
+        HASH["SHA-256 hashing"]
+        QVAC["QVAC analysis integration"]
+        VALIDATE["Analysis result validation"]
     end
 
-    subgraph Data["Data Layer"]
-        DB[("PostgreSQL<br/>SQLite for local development")]
+    subgraph LocalAI["Local AI Layer"]
+        WORKER["QVAC local worker"]
+        MODEL["Local language model"]
     end
 
-    subgraph AI["AI Layer"]
-        GEMINI["Google Gemini<br/>Summary, risks, lawyer questions"]
+    subgraph Storage["Persistence Layer"]
+        DB[("Configured database")]
+        HISTORY["Saved analysis history"]
     end
 
-    subgraph Chain["Casper Testnet"]
-        NODE["Public RPC node"]
-        SC["LexProof registry contract"]
+    subgraph Blockchain["Blockchain Layer"]
+        RPC["Casper RPC services"]
+        REGISTRY["Casper hash registry"]
     end
 
-    UI -- "PDF or pasted text" --> API
-    API --> EXTRACT
-    EXTRACT -- "Document text" --> GEMINI
-    ENV -. "API key" .-> GEMINI
-    GEMINI -- "Structured risk report" --> API
-    API <--> DB
-    API -- "Analysis report and hash" --> UI
+    UI --> API
+    API --> PDF
+    API --> HASH
+    API --> QVAC
+    QVAC --> WORKER
+    WORKER --> MODEL
+    MODEL --> WORKER
+    WORKER --> VALIDATE
+    VALIDATE --> API
+    API --> DB
+    DB --> HISTORY
+    HISTORY --> API
+    API --> UI
 
-    UI -- "Request signature" --> WALLET
-    WALLET -- "Signed transaction" --> UI
-    UI -- "Signed transaction" --> RELAY
-    RELAY --> NODE
-    NODE --> SC
-
-    style Client fill:#EFF6FF,stroke:#1E3A8A,color:#0F1E3D
-    style Backend fill:#F1F5F9,stroke:#475569,color:#0F1E3D
-    style Data fill:#ECFDF5,stroke:#059669,color:#0F1E3D
-    style AI fill:#FEF3C7,stroke:#D97706,color:#0F1E3D
-    style Chain fill:#FEE2E2,stroke:#DC2626,color:#0F1E3D
+    UI --> WALLET
+    WALLET --> UI
+    UI --> RPC
+    RPC --> REGISTRY
 ```
 
-### Components
+### Component responsibilities
 
 | Component | Responsibility |
 |---|---|
-| **Frontend (Netlify)** | Document upload, text input, results display, history, wallet connection, PDF report generation |
-| **Backend API (Render)** | Orchestrates analysis, hashing, Gemini calls, database access, and Casper endpoints |
-| **Document processing** | Extracts text from PDFs with `pypdf` and computes the SHA-256 hash |
-| **Google Gemini** | Generates the summary, obligations, risk findings, and lawyer questions |
-| **Database** | Persists analysis history and blockchain status (PostgreSQL in production, SQLite locally) |
-| **Casper RPC relay** | Forwards signed transactions and read-only queries to the node |
-| **Casper Wallet** | Lets the user sign verification transactions |
-| **Registry contract** | Stores registered document hashes on-chain |
+| **React + Vite frontend** | Document input, workspace navigation, reports, saved history, and blockchain controls |
+| **FastAPI backend** | Coordinates document processing, analysis integration, persistence, and supported API operations |
+| **PDF processing** | Extracts readable text from supported PDF documents |
+| **SHA-256** | Produces a cryptographic fingerprint of the analyzed content |
+| **QVAC integration** | Invokes the local inference workflow |
+| **QVAC worker** | Communicates with the local model runtime and returns analysis output |
+| **Result validation** | Checks the returned analysis before it is presented as a completed AI report |
+| **Database** | Persists analysis history according to the configured database connection |
+| **Casper Wallet** | Lets users authorize blockchain transactions |
+| **Casper network services** | Handle transactions and on-chain registry queries |
 
-**Why a relay?** Casper nodes do not accept requests directly from browser pages (CORS). The backend therefore forwards signed transactions and read-only queries to the node. It only forwards a fixed allow-list of RPC methods.
+The exact deployment arrangement may vary between local development and hosted environments. Local AI inference, application hosting, database persistence, and blockchain connectivity should be treated as separate services.
 
 ---
 
-## Workflow Diagrams
-
-### Document Analysis Flow
-
-What happens when a user clicks **Analyze document**.
+## Document Analysis Workflow
 
 ```mermaid
 sequenceDiagram
-    autonumber
     actor User
-    participant FE as React frontend
+    participant UI as React frontend
     participant API as FastAPI backend
-    participant AI as Google Gemini
-    participant DB as Database
+    participant PDF as PDF processor
+    participant QVAC as Local QVAC worker
+    participant Model as Local model
+    participant DB as Configured database
 
-    User->>FE: Upload a PDF or paste contract text
-    User->>FE: Click Analyze document
-    FE->>API: POST /api/analyze-pdf or /api/analyze-text
-    API->>API: Extract text, count words, compute SHA-256 hash
-    API->>AI: Request summary, obligations, risks, lawyer questions
-    AI-->>API: Structured analysis
-    API->>API: Check evidence quotes against the document
-    API->>DB: Save the analysis record
-    API-->>FE: Analysis result with document hash
-    FE-->>User: Show summary, risk findings, questions
-    Note over FE,DB: The result now appears in Saved analysis history
+    User->>UI: Upload PDF or paste text
+    UI->>API: Submit document for analysis
+    API->>PDF: Extract text if PDF
+    PDF-->>API: Extracted text
+    API->>API: Calculate SHA-256 and document statistics
+    API->>QVAC: Request local analysis
+    QVAC->>Model: Run inference
+    Model-->>QVAC: Model output
+    QVAC-->>API: Analysis result or error
+    API->>API: Validate result and AI status
+    API->>DB: Save analysis according to configuration
+    API-->>UI: Return analysis and document hash
+    UI-->>User: Display report and status
 ```
 
-### Blockchain Registration Flow
+The worker may fail for reasons such as model initialization errors, insufficient available memory, runtime failures, malformed output, or response-validation errors.
 
-The full journey from analysis result to an on-chain record.
+A successful PDF upload or saved analysis record does not, by itself, prove that AI inference succeeded. The application should distinguish document processing, AI completion, and persistence status.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User
-    participant FE as React frontend
-    participant API as FastAPI backend
-    participant W as Casper Wallet
-    participant N as Casper Testnet node
-    participant SC as Registry contract
+---
 
-    User->>FE: Click Register on Casper blockchain
-    FE->>API: GET /api/blockchain/verify/:hash
-    API->>N: Read the registry dictionary
-    N-->>API: Found or not found
-    API-->>FE: Registration status
+## Blockchain Registration and Verification
 
-    alt Hash already on-chain
-        FE-->>User: Show already registered, no transaction sent
-    else Hash not found
-        FE->>W: Request a signature for register_hash
-        W-->>FE: Signed transaction
-        FE->>API: POST /api/casper/rpc
-        API->>N: Forward the signed transaction
-        N->>SC: Execute register_hash
-        SC-->>N: Hash stored on-chain
-        loop Until the transaction is finalized
-            FE->>API: GET /api/blockchain/tx/:tx_hash
-            API->>N: Look up the execution result
-            N-->>API: Status
-            API-->>FE: Status
-        end
-        FE->>API: POST /api/analyses/:id/blockchain
-        API-->>FE: Record marked as registered
-        FE-->>User: Registered, with transaction link
-    end
-    Note over FE,SC: Only the hash is sent. The document never goes on-chain.
-```
+LexProof Pocket uses a document's SHA-256 hash to support integrity checks through Casper Testnet.
 
-### Verification Logic
+### Registration
 
-How registration and later integrity checks decide their outcome.
+1. Analyze the document and calculate its hash.
+2. Connect the Casper Wallet.
+3. Request the user's authorization for registration.
+4. Submit the wallet-authorized transaction through the configured network integration.
+5. Check the transaction result.
+6. Display the registration status after successful confirmation.
+
+### Verification
+
+1. Calculate the hash of the document being checked.
+2. Query the Casper registry.
+3. Compare the calculated hash with the registered value.
+4. Report whether the hash was found.
 
 ```mermaid
 flowchart TD
-    A["Document analyzed"] --> B["SHA-256 hash computed on the backend"]
-    B --> C{"Already registered by an earlier analysis?"}
-    C -- "Yes" --> D["Link the existing record, no new transaction"]
-    C -- "No" --> E{"Hash found in the on-chain registry?"}
-    E -- "Yes" --> F["Show: already registered"]
-    E -- "No" --> G["Sign and send register_hash with Casper Wallet"]
-    G --> H{"Transaction result"}
-    H -- "Success" --> I["Hash stored on-chain, record saved as success"]
-    H -- "Failed" --> J["Record saved as failed with the error"]
-    I --> K["Later: analyze the same document and press Verify on-chain"]
-    K --> L{"Same hash found on-chain?"}
-    L -- "Yes" --> M["Verified: the document is unchanged"]
-    L -- "No" --> N["Not found: a different or unregistered document"]
-
-    style D fill:#DBEAFE,stroke:#1E3A8A,color:#0F1E3D
-    style F fill:#DBEAFE,stroke:#1E3A8A,color:#0F1E3D
-    style I fill:#DCFCE7,stroke:#16A34A,color:#0F1E3D
-    style J fill:#FEE2E2,stroke:#DC2626,color:#0F1E3D
-    style M fill:#DCFCE7,stroke:#16A34A,color:#0F1E3D
-    style N fill:#FEE2E2,stroke:#DC2626,color:#0F1E3D
+    A["Document analyzed"] --> B["Calculate SHA-256"]
+    B --> C{"Internet and Casper services available?"}
+    C -- "No" --> D["Show network unavailable"]
+    C -- "Yes" --> E["Query hash registry"]
+    E --> F{"Hash already registered?"}
+    F -- "Yes" --> G["Show matching registered hash"]
+    F -- "No" --> H["Offer registration"]
+    H --> I["Wallet authorization"]
+    I --> J["Submit transaction"]
+    J --> K{"Transaction successful?"}
+    K -- "Yes" --> L["Show confirmed registration"]
+    K -- "No" --> M["Show failure or pending status"]
 ```
 
-The hash is calculated from the exact content that is analyzed: the bytes of an uploaded PDF, or the pasted text. Changing even one character produces a completely different hash, which is what makes tamper detection reliable.
+### What a hash proves
 
-### Privacy by Design
+A matching SHA-256 hash provides evidence that the checked content matches the content represented by the registered hash, assuming the hash and comparison process are implemented correctly.
 
-What stays off-chain and what goes on-chain.
+It does **not** independently prove:
+
+- Who created or signed the document.
+- Whether a signature is authentic.
+- Whether a document is legally valid or enforceable.
+- Whether the document was fair or free from fraud.
+- Whether the original document was truthful.
+
+Only the document hash is intended to be registered on-chain. Blockchain transactions and their associated public metadata may remain publicly visible.
+
+---
+
+## Privacy by Design
+
+LexProof Pocket is built around a separation between local document analysis and public blockchain integrity records.
 
 ```mermaid
 flowchart LR
-    DOC["Legal document<br/>Full contents"]
+    DOC["Legal document"]
 
-    subgraph OFF["Off-chain, private"]
-        direction TB
-        A1["Extracted document text"]
-        A2["AI analysis report in the database"]
-        A3["API keys and database URL on the backend"]
-        A4["Private keys inside Casper Wallet"]
+    subgraph OFF["Off-chain"]
+        TEXT["Document text"]
+        AI["AI analysis"]
+        HISTORY["Saved history"]
     end
 
-    subgraph ON["On-chain, public"]
-        direction TB
-        B1["SHA-256 hash and transaction details only"]
+    subgraph ON["Casper Testnet"]
+        HASH["SHA-256 hash"]
+        TX["Transaction metadata"]
     end
 
-    DOC --> OFF
-    DOC -. "One-way hash" .-> ON
-
-    style OFF fill:#F1F5F9,stroke:#475569,color:#0F1E3D
-    style ON fill:#FEE2E2,stroke:#DC2626,color:#0F1E3D
-    style DOC fill:#0F1E3D,stroke:#1E3A8A,color:#fff
+    DOC --> TEXT
+    TEXT --> AI
+    AI --> HISTORY
+    DOC --> HASH
+    HASH --> TX
 ```
 
-### User Journey
+### Data handling principles
 
-```mermaid
-journey
-    title A typical LexProof AI session
-    section Provide a document
-      Upload a PDF or paste text: 5: User
-      Click Analyze document: 5: User
-    section Understand
-      Read the plain-language summary: 5: User
-      Review risk findings and evidence: 4: User
-      Note questions for a lawyer: 5: User
-    section Verify
-      Connect Casper Wallet: 4: User
-      Register the document hash: 4: User
-      Verify a later copy on-chain: 5: User
-    section Revisit
-      Open saved analysis history: 5: User
-      Download the PDF report: 5: User
-```
+- **Local inference:** QVAC can analyze text using the local model runtime without sending the inference request to a cloud AI provider.
+- **No document on-chain:** The full document is not intentionally stored on the blockchain by the hash-registration workflow.
+- **Hash-based verification:** The SHA-256 hash is used for integrity checking.
+- **Wallet-controlled signing:** Transaction authorization is handled through Casper Wallet.
+- **Database awareness:** Saved analyses may include extracted text and reports, depending on the application's persistence implementation.
+- **Network awareness:** Blockchain operations require internet connectivity and accessible Casper services.
 
----
+### A note on confidentiality
 
-## Smart Contract
+A SHA-256 hash is not encryption. Although it does not directly contain the document text, hashes of predictable documents may sometimes be matched against known content.
 
-The registry contract is written in Rust for the Casper 2.0 network and lives in `contracts/lexproof-registry`.
+Local inference also does not automatically make the complete application private. Users should confirm whether the configured database, logs, temporary files, and backups are stored locally or remotely.
 
-**Entry point:** `register_hash(document_hash: String)`
-
-```mermaid
-flowchart TD
-    A["register_hash(document_hash)"] --> B{"64 hexadecimal characters?"}
-    B -- "No" --> C["Revert: InvalidArgument"]
-    B -- "Yes" --> D{"Already in lexproof_registry?"}
-    D -- "Yes" --> E["Revert: user error 1, already registered"]
-    D -- "No" --> F["Store the hash in the registry dictionary"]
-    F --> G["Transaction succeeds"]
-
-    style C fill:#FEE2E2,stroke:#DC2626,color:#0F1E3D
-    style E fill:#FEE2E2,stroke:#DC2626,color:#0F1E3D
-    style G fill:#DCFCE7,stroke:#16A34A,color:#0F1E3D
-```
-
-Verification does not need a transaction. The backend reads the `lexproof_registry` dictionary directly from the node, which is free.
-
-### Current Testnet deployment (`casper-test`)
-
-| Item | Value |
-|---|---|
-| **Contract hash** | `2568a51ef91d7ed544d11f86de29fa45b431e032c06c6454ae0462a79253201f` |
-| **Package hash** | `dafbd48e899b876747a46c780298799f6bd217df0263e42d240d1610c96468fc` |
-| **Registry URef** | `uref-7182191a1edad9c3a5a9e1b3856b1c38095090d99d06614a80e99532cc1a0bf2-007` |
-| **Install transaction** | `1af83dc21c1289ef56f9e241b3a3b68b88c614adba1053ac7e986b5c88261898` |
-
-You can inspect these on the [Casper Testnet explorer](https://testnet.cspr.live). These values are public on-chain data, not secrets.
-
----
-
-## Data Model
-
-Each analysis is saved as one row in the `analysis_records` table. The blockchain columns stay empty until a document is registered.
-
-```mermaid
-erDiagram
-    ANALYSIS_RECORDS {
-        int id PK
-        string filename
-        text document_text
-        text document_summary
-        string analysis_type
-        text ai_report
-        string ai_status
-        string file_hash
-        int word_count
-        datetime created_at
-        string chain_tx_hash
-        string chain_status
-        string chain_network
-        string chain_contract_hash
-        string chain_account
-        text chain_error
-        datetime chain_registered_at
-    }
-```
-
-The blockchain status of a record moves through these states:
-
-```mermaid
-stateDiagram-v2
-    [*] --> NotRegistered
-    NotRegistered --> pending: Transaction sent
-    pending --> success: Executed on-chain
-    pending --> failed: Execution error
-    failed --> pending: Retry
-    success --> [*]
-```
-
-The backend creates missing columns automatically on startup, so existing databases upgrade without manual migration.
+Do not upload sensitive or confidential documents to a public demo unless you understand the applicable data-storage and processing arrangements.
 
 ---
 
@@ -464,45 +448,55 @@ The backend creates missing columns automatically on startup, so existing databa
 
 | Layer | Technology |
 |---|---|
-| **Frontend** | React 19, Vite 8, Axios, jsPDF, casper-js-sdk 5 |
-| **Backend** | Python, FastAPI, Uvicorn, SQLAlchemy 2, pypdf |
-| **AI** | Google Gemini through the `google-genai` SDK |
-| **Database** | PostgreSQL in production, SQLite for local development |
-| **Blockchain** | Casper Testnet, Casper Wallet |
-| **Smart contract** | Rust with `casper-contract` 5.1.1 and `casper-types` 6.1.0 |
-| **Hosting** | Netlify (frontend), Render (backend) |
+| **Frontend** | React, Vite, JavaScript |
+| **Backend** | Python, FastAPI, Uvicorn |
+| **Document processing** | `pypdf` |
+| **AI inference** | QVAC local AI integration |
+| **Model runtime** | Local model/runtime configured for QVAC |
+| **Integrity verification** | SHA-256 |
+| **Database** | Configured application database; SQLite may be used for local development |
+| **Blockchain** | Casper Testnet |
+| **Wallet integration** | Casper Wallet |
+| **Smart contract** | Casper registry contract, where deployed and configured |
+| **Version control** | Git and GitHub |
+
+Specific package versions and model requirements depend on the current project configuration.
 
 ---
 
 ## Project Structure
 
+The following is a conceptual overview of the primary application components. The exact files and directories may differ from this illustration.
+
 ```text
-LexProof-AI/
-├── assets/
-│   └── logo.svg                 Project logo
+LexProof-Pocket/
 ├── backend/
-│   ├── main.py                  FastAPI app, database, Casper endpoints
-│   ├── ai_analysis.py           Gemini prompt, response parsing, evidence checks
-│   └── requirements.txt
+│   ├── main.py
+│   ├── qvac_analysis.py
+│   ├── qvac_local_worker.py
+│   ├── requirements.txt
+│   └── ...
 ├── frontend/
 │   ├── src/
-│   │   ├── App.jsx              Main interface
-│   │   ├── casperWallet.js      Casper Wallet connection
-│   │   ├── casperRegistry.js    Register, verify, and status helpers
-│   │   ├── generateReport.js    PDF report generation
-│   │   ├── DeployContract.jsx   One-time contract deployment page
-│   │   └── main.jsx
-│   ├── index.html
-│   └── package.json
+│   │   ├── App.jsx
+│   │   └── ...
+│   ├── package.json
+│   └── ...
+├── assets/
+│   └── logo.svg
 ├── contracts/
-│   └── lexproof-registry/
-│       ├── src/lib.rs           The registry contract
-│       ├── check_wasm.py        Checks a build is accepted by Casper
-│       ├── rust-toolchain.toml
-│       ├── Cargo.toml
-│       └── Cargo.lock
-└── package.json
+│   └── ...
+├── README.md
+└── ...
 ```
+
+- `backend/main.py` — Main FastAPI application and document-analysis endpoints.
+- `backend/qvac_analysis.py` — QVAC analysis integration.
+- `backend/qvac_local_worker.py` — Local model worker interface.
+- `frontend/src/App.jsx` — Main workspace interface.
+- `assets/logo.svg` — Existing project logo.
+
+The QVAC runtime and model may require separate installation or configuration. Keep downloaded models, virtual environments, temporary diagnostics, credentials, and private configuration out of version control unless there is a deliberate and safe reason to include them.
 
 ---
 
@@ -510,328 +504,351 @@ LexProof-AI/
 
 ### Prerequisites
 
-- **Python** 3.10 or newer
-- **Node.js** 20 or newer, with npm
-- A **Gemini API key** from [Google AI Studio](https://aistudio.google.com/)
-- The **Casper Wallet** browser extension, with a Testnet account funded with test CSPR from the [Testnet faucet](https://testnet.cspr.live/tools/faucet)
-- **Rust** is only needed if you want to rebuild the smart contract
+Before running LexProof Pocket locally, prepare:
 
-### Backend Setup
+- Python compatible with the backend dependencies.
+- Node.js and npm compatible with the frontend.
+- Git.
+- The QVAC runtime and required local model.
+- A Casper Wallet browser extension if you want to test blockchain operations.
+- Internet access for initial setup, package installation, and Casper network operations.
 
-```bash
+**Important:** Installing the Python dependencies alone may not install the local model or make QVAC inference available. Follow the setup instructions for the QVAC runtime and model configured in your environment.
+
+### 1. Clone the repository
+
+```powershell
+git clone https://github.com/Hajrajadoon/LexProof-Pocket.git
+cd LexProof-Pocket
+```
+
+### 2. Set up the backend
+
+```powershell
 cd backend
+
 python -m venv .venv
 
-# Windows PowerShell
-.venv\Scripts\Activate.ps1
-# macOS or Linux
-source .venv/bin/activate
+.\.venv\Scripts\Activate.ps1
 
 pip install -r requirements.txt
 ```
 
-Create `backend/.env`:
+If PowerShell blocks virtual-environment activation, consult the Python environment setup instructions for your Windows configuration.
 
-```dotenv
-GEMINI_API_KEY=your_gemini_api_key
-CASPER_CONTRACT_HASH=2568a51ef91d7ed544d11f86de29fa45b431e032c06c6454ae0462a79253201f
-CASPER_REGISTRY_UREF=uref-7182191a1edad9c3a5a9e1b3856b1c38095090d99d06614a80e99532cc1a0bf2-007
-```
+### 3. Configure the local AI runtime
 
-Start the server:
+Make sure the configured QVAC runtime and model are installed and accessible to the application.
 
-```bash
+The exact model location, runtime settings, and launch configuration must match the current QVAC integration in the project.
+
+Before testing through the application, verify that:
+
+- The worker can locate the runtime.
+- The model files are accessible.
+- The computer has sufficient available memory.
+- The worker can complete inference.
+- The output can be parsed into a valid analysis result.
+
+Do not assume the AI is working solely because the backend starts successfully.
+
+### 4. Configure application settings
+
+Review the current backend and frontend configuration before adding environment variables.
+
+Do not copy configuration names from another LexProof project unless they exist in LexProof Pocket's code.
+
+Keep secrets and private settings in local environment files that are excluded from Git. Do not commit wallet private keys, API tokens, credentials, or confidential documents.
+
+### 5. Start the backend
+
+From the backend directory, use the project's configured startup command. For a standard FastAPI application exposing `main:app`, the command is:
+
+```powershell
 uvicorn main:app --reload --port 8000
 ```
 
-Open http://127.0.0.1:8000/health. It should report `"status": "ok"`. Interactive API docs are at http://127.0.0.1:8000/docs.
+This command assumes that the backend dependencies are installed and that the application is configured to run in the current Python environment.
 
-### Frontend Setup
+### 6. Start the frontend
 
-```bash
-cd frontend
+Open another PowerShell window:
+
+```powershell
+cd C:\Users\user\LexProof-Pocket\frontend
+
 npm install
-```
-
-Create `frontend/.env`:
-
-```dotenv
-VITE_API_URL=http://127.0.0.1:8000
-VITE_CASPER_TX_FORMAT=legacy
-```
-
-Start the development server:
-
-```bash
 npm run dev
 ```
 
-Open http://localhost:5173.
+Open the local address displayed by Vite in your terminal.
 
-### Environment Variables
+The frontend must point to the correct backend address for analysis and history operations to work.
 
-> Never commit `.env` files. They are already listed in `.gitignore`. If a key is ever exposed, rotate it immediately.
+### 7. Test local inference
 
-**Backend**
+Use a short, non-confidential sample document.
 
-| Variable | Required | Description |
-|---|---|---|
-| `GEMINI_API_KEY` | Yes | Key for the Gemini API. Without it only the keyword scan runs. **Secret.** |
-| `GEMINI_MODEL` | No | Gemini model name. A default is built in. |
-| `CASPER_CONTRACT_HASH` | Yes, for blockchain | 64-character contract hash, without any `hash-` prefix. |
-| `CASPER_REGISTRY_UREF` | Recommended | Registry dictionary URef, used for reliable on-chain verification. |
-| `CASPER_NETWORK` | No | Chain name. Defaults to `casper-test`. |
-| `CASPER_NODE_RPC` | No | Node RPC address. Defaults to the public Testnet node. |
-| `CASPER_EXPLORER_TX_URL` | No | Explorer link prefix for transactions. |
-| `DATABASE_URL` | No | Database connection string. Defaults to a local SQLite file. **Secret** in production. |
-| `FRONTEND_ORIGINS` | No | Extra allowed frontend addresses, separated by commas. |
+Confirm that:
 
-**Frontend**
+1. The backend accepts the text or PDF.
+2. QVAC is actually invoked.
+3. The worker returns a valid result.
+4. The interface reports successful AI completion.
+5. The saved record can be reopened if persistence is configured.
 
-| Variable | Required | Description |
-|---|---|---|
-| `VITE_API_URL` | Yes | Address of the backend, with no slash at the end. |
-| `VITE_CASPER_TX_FORMAT` | No | `legacy` (recommended) or `v2`. |
-| `VITE_CASPER_PAYMENT_CSPR` | No | Payment limit per registration, in CSPR. Defaults to `10`. |
+Test offline behavior separately by disconnecting internet access after confirming that the local runtime and required resources are available.
 
-Vite reads `.env` only when it starts, so restart `npm run dev` after changing it.
+### 8. Test Casper separately
+
+Reconnect to the internet and confirm that:
+
+1. Casper Wallet can connect.
+2. The configured Casper Testnet services are reachable.
+3. A transaction can be authorized and submitted.
+4. The transaction status can be retrieved.
+5. Verification correctly reports whether the hash is registered.
+
+A local analysis test and a blockchain transaction test validate different parts of the application.
 
 ---
 
 ## Using the App
 
-1. Open the [live app](https://lexproof-ai.netlify.app/) and **upload a PDF** (up to 15 MB) or **paste contract text**, then press **Analyze document**.
-2. Read the AI report: summary, key obligations, risk findings with evidence, and questions for a lawyer.
-3. Press **Register on Casper blockchain**. Casper Wallet asks you to connect and then to sign. Keep the wallet on Testnet.
-4. Wait about a minute. The page reports when the hash is registered, and the record is saved with its transaction link.
-5. Press **Verify on-chain** at any time to check the hash against the blockchain.
-6. Download the **PDF report**. It includes the blockchain verification details.
+### Analyze a PDF
 
-### Workspace navigation
+1. Open the workspace.
+2. Find the **Upload a PDF** section.
+3. Select a supported PDF document up to 15 MB.
+4. Click **Analyze document**.
+5. Wait for document extraction and the local AI workflow.
+6. Review the resulting report and its AI status.
+
+Image-only or scanned PDFs may not produce usable text without OCR support.
+
+### Analyze pasted text
+
+1. Open **Paste contract text**.
+2. Enter the contract or document text.
+3. Click **Analyze document**.
+4. Review the generated summary, potential concerns, obligations, evidence, and lawyer questions.
+5. Check that the report indicates whether QVAC completed successfully.
+
+### Register a document hash
+
+1. Analyze the document.
+2. Locate the blockchain proof section.
+3. Connect Casper Wallet.
+4. Select the registration action.
+5. Review and authorize the wallet request.
+6. Wait for the transaction status.
+7. Confirm that the interface reports registration only after the appropriate success condition is met.
+
+### Verify a document
+
+1. Analyze the document whose integrity you want to check.
+2. Locate its SHA-256 hash.
+3. Use **Verify on-chain**.
+4. Wait for the network query.
+5. Review whether the hash is found in the registry.
+
+An offline document can be analyzed locally, but the application cannot obtain a new authoritative on-chain verification result while disconnected from the network.
+
+---
+
+## Workspace
+
+LexProof Pocket provides a workspace with the following navigation.
 
 | Section | Purpose |
 |---|---|
-| **Overview** | Dashboard with session stats, document analysis, and saved history |
-| **Documents** | Manage documents you have analyzed |
-| **Blockchain Verification** | Lists every registered document with a link to its transaction |
-| **Reports** | Access generated analysis reports |
+| **Overview** | Main dashboard, document analysis, and recent saved results |
+| **Documents** | Document-related workspace functionality |
+| **Blockchain Verification** | Interface for checking document hashes and registration status |
+| **Reports** | Report-related workspace functionality |
 
 ### Dashboard metrics
 
-| Metric | Meaning |
-|---|---|
-| **Documents selected** | Documents chosen in the current session |
-| **Saved analyses** | Analyses retrieved from the database |
-| **Verified records** | Documents registered on the Casper blockchain |
+The dashboard can display:
+
+- **Selected document** — The currently selected document, if any.
+- **Saved analyses** — The number of saved analysis records returned by the backend.
+- **Verified on-chain** — The number of records that the application counts as verified or registered.
+
+These metrics depend on the application's data and status logic. A displayed count should not be interpreted as proof of an on-chain transaction unless the corresponding status has been confirmed.
 
 ### Saved analysis history
 
-Every analysis is saved and listed with its document name (or *Pasted text*), report type (**AI report ready** or **Keyword scan**), date and time, word count, number of topics flagged, and a **View saved result** action. Use **Refresh history** to pull the latest results from the backend.
+Saved results can display the document name, timestamp, word count, AI status, and a view action.
+
+If an analysis reports that AI is unavailable, that record should not be treated as equivalent to a successful QVAC report.
 
 ---
 
 ## API Reference
 
-Interactive documentation is available at `/docs` on the running backend.
+LexProof Pocket uses a FastAPI backend.
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/` | Service information |
-| `GET` | `/health` | Database and configuration health check |
-| `POST` | `/api/analyze-text` | Analyze pasted text (`text`, `filename`) |
-| `POST` | `/api/analyze-pdf` | Analyze an uploaded PDF (multipart `file`) |
-| `GET` | `/api/analyses` | List saved analyses |
-| `GET` | `/api/analyses/{id}` | Get one saved analysis |
-| `POST` | `/api/analyses/{id}/blockchain` | Save the blockchain result for an analysis |
-| `GET` | `/api/blockchain/config` | Network and contract settings used by the frontend |
-| `GET` | `/api/blockchain/verify/{document_hash}` | Check whether a hash is registered on-chain |
-| `GET` | `/api/blockchain/tx/{tx_hash}` | Status of a registration transaction |
-| `POST` | `/api/casper/rpc` | Relay for signed transactions and read-only queries |
+The authoritative API surface is the current backend implementation. To inspect the available endpoints, run the backend and consult its generated API documentation if enabled.
 
----
+For a typical local FastAPI setup, the documentation is often available at:
 
-## Building and Deploying the Contract
-
-You only need this to rebuild the contract or deploy your own copy. **A rejected deployment still costs the full payment**, so check the build before you deploy.
-
-**1. Build as plain WebAssembly.** The Casper node rejects the newer WebAssembly instructions that recent Rust versions emit by default, so the contract is built with the `mvp` CPU target. In PowerShell:
-
-```powershell
-cd contracts\lexproof-registry
-cargo clean
-$env:RUSTFLAGS = "-C target-cpu=mvp -C target-feature=+mutable-globals"
-cargo build --release --target wasm32-unknown-unknown "-Zbuild-std=core,alloc,panic_abort" "-Zbuild-std-features=compiler-builtins-mem"
+```text
+http://127.0.0.1:8000/docs
 ```
 
-The Rust toolchain is pinned in `rust-toolchain.toml`.
+The following are conceptual API responsibilities rather than a guarantee of exact route names:
 
-**2. Check the result.**
-
-```powershell
-python check_wasm.py path\to\lexproof_registry.wasm
-```
-
-Deploy only if the last line says `RESULT: OK`.
-
-**3. Deploy once.** Start the frontend and open `/?deploy`. Choose the `.wasm` file and approve the transaction in Casper Wallet. Installing a second time fails, because the registry dictionary already exists.
-
-**4. Find the contract hash.** On the Testnet explorer, open your account, then **On-chain data**, then the named keys. Copy `lexproof_contract_hash`, remove any `hash-` prefix, and set it as `CASPER_CONTRACT_HASH`. Copy the `lexproof_registry` value and set it as `CASPER_REGISTRY_UREF`.
-
----
-
-## Hosting on Render and Netlify
-
-```mermaid
-flowchart LR
-    USER(["User browser"])
-
-    subgraph NETLIFY["Netlify"]
-        FE["Frontend<br/>lexproof-ai.netlify.app"]
-    end
-
-    subgraph RENDER["Render"]
-        BE["Backend API<br/>lexproof-ai.onrender.com"]
-        RENV["Environment variables<br/>Gemini key, database URL, contract config"]
-    end
-
-    PG[("PostgreSQL")]
-    GEM["Google Gemini API"]
-    CSPR["Casper Testnet"]
-
-    USER --> FE
-    FE -- "HTTPS API requests" --> BE
-    RENV -. "Loaded at runtime" .-> BE
-    BE -- "SQL" --> PG
-    BE -- "Server-side calls" --> GEM
-    BE -- "RPC relay" --> CSPR
-    USER -- "Wallet-signed transactions" --> FE
-
-    style NETLIFY fill:#E6FFFA,stroke:#00C7B7,color:#0F1E3D
-    style RENDER fill:#ECFDF5,stroke:#46E3B7,color:#0F1E3D
-    style PG fill:#DBEAFE,stroke:#4169E1,color:#0F1E3D
-    style GEM fill:#FEF3C7,stroke:#D97706,color:#0F1E3D
-    style CSPR fill:#FEE2E2,stroke:#DC2626,color:#0F1E3D
-```
-
-**Backend on Render (web service)**
-
-| Setting | Value |
+| Responsibility | Description |
 |---|---|
-| Root directory | `backend` |
-| Build command | `pip install -r requirements.txt` |
-| Start command | `uvicorn main:app --host 0.0.0.0 --port $PORT` |
+| **Document analysis** | Accept pasted text and supported document uploads |
+| **Local AI integration** | Invoke QVAC and handle its response |
+| **Analysis history** | Retrieve saved analysis records |
+| **Analysis detail** | Retrieve an individual saved result |
+| **Blockchain configuration** | Expose relevant network and registry configuration |
+| **Hash verification** | Query the registry for a document hash |
+| **Transaction status** | Retrieve a blockchain transaction result |
+| **Health checks** | Report backend availability and configured dependencies |
 
-In the Render dashboard, open **Environment** and set `GEMINI_API_KEY`, `CASPER_CONTRACT_HASH`, `CASPER_REGISTRY_UREF`, and `DATABASE_URL`. Use a **PostgreSQL** database for `DATABASE_URL`, because on Render's free plan a local SQLite file is erased whenever the service restarts. Add `FRONTEND_ORIGINS` if your frontend address is not already allowed.
-
-**Frontend on Netlify**
-
-| Setting | Value |
-|---|---|
-| Base directory | `frontend` |
-| Build command | `npm run build` |
-| Publish directory | `frontend/dist` |
-
-Set `VITE_API_URL` to your Render address and `VITE_CASPER_TX_FORMAT` to `legacy`. Netlify applies these at build time, so trigger a new deploy after changing them.
+Consult the current application code or generated API documentation before relying on a specific endpoint, request schema, or response format.
 
 ---
 
-## Privacy and Security
+## Security and Data Handling
 
-- **On-chain data:** only the SHA-256 hash and the transaction details are written to the blockchain. The document is never put on-chain.
-- **One-way hashes:** a hash proves a document's integrity but cannot be reversed to reveal its contents.
-- **Backend storage:** the backend saves the extracted document text and the AI report in its database so that history works. Do not upload sensitive or confidential documents to the public demo.
-- **Third-party processing:** document text is sent to Google Gemini for analysis.
-- **Keys:** private keys never touch this application. Casper Wallet signs transactions inside the extension.
-- **Secrets:** the Gemini API key and database URL live in environment variables and `.env` files, which are excluded from git and never exposed to the browser.
-- **Transport:** the frontend and backend are both served over HTTPS.
-- **RPC relay:** it only forwards a fixed list of Casper RPC methods. The API has no user authentication yet, so treat the deployment as a demo.
+### Documents
+
+Document contents may be processed locally by QVAC, but document text and reports may also be persisted by the backend.
+
+Understand where data is stored, who can access the configured database, and whether logs or temporary files retain document content.
+
+### AI output
+
+AI-generated legal analysis can be incomplete, misleading, or incorrect. The application should distinguish successful local inference from errors and any fallback analysis.
+
+Evidence quotes should be checked against the source text whenever possible. A plausible-sounding answer is not proof that the model correctly interpreted a legal document.
+
+### Blockchain
+
+- The registration workflow is intended to publish the document hash, not the full document.
+- Blockchain records and transaction metadata may be publicly visible.
+- A wallet signature authorizes a transaction; it does not establish legal validity.
+- Testnet transactions are not equivalent to production legal or financial records.
+
+### Credentials
+
+- Never commit passwords, private keys, access tokens, or confidential environment files.
+- Never put wallet private keys in frontend source code or public repositories.
+- Use wallet-controlled signing for transactions.
+- Review the configured backend, database, and RPC relay before exposing them publicly.
+
+### Dependencies and backups
+
+Keep local model files, Python virtual environments, build artifacts, temporary diagnostic logs, and recovery backups out of version control unless they are deliberately needed and safe to publish.
 
 ---
 
 ## Limitations
 
-- Runs on the **Casper Testnet** only. Registered hashes have no real-world value or permanence guarantees, and a testnet can be reset.
-- A hash proves a document is unchanged since registration. It does not prove who wrote it, who registered it, or that it is legally valid or enforceable.
-- Anyone can register any hash, and the contract does not yet record an owner or a timestamp.
-- Scanned or image-only PDFs are not supported, because there is no OCR.
-- Each registration sends a transaction with a payment limit of 10 CSPR. Testnet CSPR is free, but a rejected transaction still costs the payment.
-- AI findings can be incomplete or wrong.
-
----
-
-## Prototype Snapshot
-
-State of the development environment at the time of writing (October 2026):
-
-| Metric | Value |
-|---|---|
-| Saved analyses | 16 |
-| Records registered on Casper | 2 |
-
-Documents used in demos include `Aegis_Monetary_Network_Concept_Paper_v0.1.pdf` and `goldguard-silver-certificate.pdf`.
+- **Prototype status:** LexProof Pocket is an experimental legal document intelligence application.
+- **AI reliability:** Summaries, obligations, risk findings, and lawyer questions may be incomplete or inaccurate.
+- **Model availability:** Local inference depends on a working QVAC runtime, accessible model files, and sufficient system resources.
+- **Offline constraints:** Blockchain registration and authoritative network verification require connectivity.
+- **PDF extraction:** Scanned documents may need OCR, which is not assumed to be available.
+- **Persistence:** Saved analysis history depends on the configured backend and database.
+- **Blockchain scope:** The app is designed for Casper Testnet; testnet availability and records are not guaranteed to persist indefinitely.
+- **Integrity scope:** A hash can support content-integrity checks but does not prove authorship, consent, legal validity, or enforceability.
+- **Privacy scope:** Local inference does not automatically mean every application component stores all data exclusively on the user's device.
+- **Legal review:** AI findings should never replace review by a qualified lawyer.
 
 ---
 
 ## Roadmap
 
-- [x] PDF upload and pasted-text analysis
-- [x] Gemini-powered reports with evidence checking
-- [x] Saved analysis history
-- [x] Casper Wallet connection and wallet-signed registration
-- [x] Duplicate protection and on-chain verification
-- [x] Downloadable PDF reports with blockchain verification details
-- [x] Production deployment on Netlify and Render
-- [ ] Verify a document by uploading it, with the hash computed in the browser
-- [ ] Side-by-side clause comparison between document versions
-- [ ] Contract upgrade with owner, timestamp, and revocation
-- [ ] An option to avoid storing document text
-- [ ] User accounts and access control for saved analyses
-- [ ] Multi-language contract support
-- [ ] Automated tests and continuous integration
-- [ ] Casper Mainnet support
-- [ ] Full interface polish and branding refresh
+The following items describe potential improvements and should not be interpreted as claims that every item is already implemented.
+
+- [x] PDF upload interface
+- [x] Pasted-text analysis interface
+- [x] Local QVAC integration
+- [x] Structured legal analysis report interface
+- [x] SHA-256 document hashing
+- [x] Saved analysis history interface
+- [x] Casper Wallet integration interface
+- [x] Casper registration and verification interface
+- [ ] Improve QVAC runtime reliability and error reporting
+- [ ] Add automated tests for analysis parsing and validation
+- [ ] Improve legal obligation extraction and evidence accuracy
+- [ ] Distinguish enforceable obligations from personal statements and general observations
+- [ ] Add robust OCR support for scanned PDFs
+- [ ] Make local versus remote storage behavior explicit
+- [ ] Add optional local-only analysis history
+- [ ] Improve offline-state indicators and network error handling
+- [ ] Add stronger integration tests for Casper registration and verification
+- [ ] Improve user access controls and document-retention options
+- [ ] Add version comparison and document-change reports
+- [ ] Evaluate additional language support
 
 ---
 
 ## Disclaimer
 
-**LexProof AI is a prototype and does not provide legal advice.**
+**LexProof Pocket is a prototype and does not provide legal advice.**
 
-AI-generated summaries and flagged clauses are informational only and may be incomplete or inaccurate. Always review the original document and consult a qualified lawyer before making legal decisions or signing any agreement.
+AI-generated summaries, obligations, risks, and questions are informational only and may be incomplete or incorrect. Always review the original document and consult a qualified lawyer before making legal decisions or signing an agreement.
+
+Blockchain registration provides a hash-based integrity reference. It does not independently prove authorship, consent, authenticity, enforceability, or legal validity.
 
 ---
 
 ## Contributing
 
-Contributions, ideas, and feedback are welcome.
+Contributions, ideas, bug reports, and feedback are welcome.
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature`
-3. Commit your changes: `git commit -m "Add your feature"`
-4. Push to the branch: `git push origin feature/your-feature`
-5. Open a Pull Request
+1. Fork the repository.
+2. Create a feature branch:
 
-> Never commit `.env` files or API keys when contributing.
+   ```bash
+   git checkout -b feature/your-feature
+   ```
+
+3. Make and test your changes.
+4. Commit your changes:
+
+   ```bash
+   git commit -m "Describe your change"
+   ```
+
+5. Push your branch:
+
+   ```bash
+   git push origin feature/your-feature
+   ```
+
+6. Open a Pull Request.
+
+Please do not commit `.env` files, credentials, private keys, confidential documents, local model weights, or unnecessary diagnostic and backup files.
 
 ---
 
 ## License
 
-This project is released under the **MIT License**.
+This project is released under the **MIT License**, provided the repository's existing license file confirms those terms.
 
 ---
 
 ## Author
 
-Built by **Hajrajadoon**.
+Built by **Hajra Jadoon**.
 
 ---
 
 <div align="center">
 
-**[Live App](https://lexproof-ai.netlify.app/)** · **[Backend API](https://lexproof-ai.onrender.com)**
+**LexProof Pocket**
 
-**LexProof AI** · Legal intelligence, with transparency.
+*Legal intelligence, with transparency.*
+
+**Local AI · Document integrity · Blockchain verification**
 
 *Prototype · Not legal advice*
 
