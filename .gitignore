@@ -37,3 +37,18 @@ build-errors.txt
 
 *.zip
 patch_verify.py
+
+# local / private files
+.env
+*.db
+*.bak
+backend/payload.json
+backend/err.txt
+backend/out.txt
+backup-*/
+branding-backup-*/
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+dist/

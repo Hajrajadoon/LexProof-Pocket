@@ -289,10 +289,7 @@ app = FastAPI(
     version=API_VERSION,
 )
 
-allowed_origins = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
+allowed_origins = []
 
 extra_origins = os.getenv("FRONTEND_ORIGINS", "").strip()
 
@@ -306,6 +303,8 @@ if extra_origins:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=list(set(allowed_origins)),
+    # Allow localhost / 127.0.0.1 on ANY port (Vite may change ports).
+    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
